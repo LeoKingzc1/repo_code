@@ -15,27 +15,29 @@ def post_data_processing(df):
     for i in range(len(df)):
         row = df.iloc[i]
         # print(row)
-        if not pd.isna(df.iloc[i][0]) and df.iloc[i][0][-1] != '：':
+        if not pd.isna(row[0]) and row[0][-1] != '：':
             # row = df.iloc[i]
             text = row[0].strip()
             text = re.sub(r'[^\u4e00-\u9fa5、：（）]', '', text)
             text = re.sub(r'^\W+', '', text)
             text = text.replace(' ', '')
             row[0] = text
-        if not pd.isna(df.iloc[i][-2]):
+        if not pd.isna(row[-2]):
             num1 = re.sub('[^0-9.-]', '', str(row[-2]))
             if len(num1) == 0:
-              num1 = '-'
+              row[-2] = '-'
             else:
-              row[-2] = num1.strip()
-        if not pd.isna(df.iloc[i][-1]):
+              row[-2] = float(num1.strip())
+        if not pd.isna(row[-1]):
             num2  = re.sub('[^0-9.-]', '', str(row[-1]))
             if len(num2) == 0:
-              num2 = '-'
+              row[-1] = '-'
             else:
-              row[-1] = num2.strip()
-        df_empty = df_empty.append(row, ignore_index=True)  # Update df_empty here
-    return df
+              row[-1] = float(num2.strip())
+        df_empty = pd.concat([df_empty, pd.DataFrame([row])], ignore_index=True)
+        # df_empty = df_empty.append(row, ignore_index=True)  # Update df_empty here
+        # df_empty = df_empty.round(2)
+    return df_empty
 #new method
 def match_sts(name, subject):
   data = name
@@ -49,7 +51,6 @@ def match_sts(name, subject):
     tem_key[i] = [0]
 
   for i in range(len(data)):
-
     score = process.extract(data[i],subject, limit=1,scorer=fuzz.token_set_ratio)
     sub_name = score[0][0]
     if score[0][1] >= 80:
@@ -62,6 +63,15 @@ def match_sts(name, subject):
     else:
       sus1_match.append([data[i],sub_name,1])
   #tem_key反向检查，检查其是否大于1
+  repeat_subject = []
+  for key, values in tem_key.items():
+      values = set(values)
+      if len(values) >= 2:
+          score_values = process.extract(key,values, limit=1,scorer=fuzz.token_set_ratio)
+          only_values = score_values[0][0]
+          for val in values:
+              if val != only_values:
+                  repeat_subject.append(val)
 
   #二次检查
   for i in sus1_match:
@@ -75,19 +85,18 @@ def match_sts(name, subject):
       else:
         sus2_match.append(i)
 
+  #反向检查
+  for i in tot_match:
+      table_name = i[0]
+      if table_name in repeat_subject:
+          tot_match.remove(i)
+
   return tot_match, sus2_match, no_match
 
 def table(df,subject):
   #OCR提取数据后处理
   df = df
-  # print(type(df))
-  # print(df)
   df = post_data_processing(df)
-  # for i in range(len(df)):
-  #   if not pd.isna(df.iloc[i][0]):
-  #     text = df.iloc[i][0]
-  #     cleaned_text = re.sub(r'^\W+', '', text)
-  #     df.iloc[i][0] = cleaned_text
   subject = subject
   #建立模版表格
   #创建一个带有列名的空的DataFrame
@@ -100,7 +109,6 @@ def table(df,subject):
   col = {}
   name = []
   for i in range(len(df)):
-    # if not pd.isna(df.iloc[i][0]) and df.iloc[i][0][-1] != ':':
     if not pd.isna(df.iloc[i][0]):
       col[df.iloc[i][0]] = df.iloc[i]
       name.append(df.iloc[i][0])
@@ -131,7 +139,7 @@ def table(df,subject):
 def fin_table_re(option, data):
   tem_name = option+'_data_tok.txt'
   with open('./fin_templates/'+tem_name,'r') as f:
-    fin_tem = f.readlines()
+        fin_tem = f.readlines()
 
   subject = [line.strip() for line in fin_tem]
 
