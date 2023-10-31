@@ -1,6 +1,7 @@
 import re
 import openpyxl
 import pandas as pd
+import gradio as gr
 from src.html_fun import *
 from src.sub_match import *
 from openpyxl import load_workbook
@@ -90,6 +91,6 @@ def read_excel(file):
     return gr.update(value='', choices=sheets)
 
 def read_df(df):
-    df = df
+    df = pd.read_html(df,header=0)[0]
     columns = df.columns.values.tolist()
     return gr.update(value='', choices=columns)
