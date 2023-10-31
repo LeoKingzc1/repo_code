@@ -48,16 +48,35 @@ def sep_df(file_path, sheet_profit, row_p, sheet_balance, row_b, sheet_flow, row
         if i == 0:
             data_p = read_sheet(file_path.name, sheet_name, row)
             profit_df = fin_table_re('profit', data_p)
-            data_p = profit_df
+            # data_p = profit_df
+            profit_df.fillna(value='-', inplace=True)
+            profit_output = df_html('利润表',profit_df)
         elif i == 2:
             data_b = read_sheet(file_path.name, sheet_name, row)
             balance_df = fin_table_re('balance', data_b)
-            data_b = balance_df
+            # data_b = balance_df
+            balance_df.fillna(value='-', inplace=True)
+            balance_output = df_html('资产负债表',balance_df)
         else:
             data_f = read_sheet(file_path.name, sheet_name, row)
             flow_df = fin_table_re('flow', data_f)
-            data_f = flow_df
-    return data_p, data_b, data_f
+            # data_f = flow_df
+            flow_df.fillna(value='-', inplace=True)
+            flow_output = df_html('现金流量表',flow_df)
+    
+    with open('./html_templates/profit_template.html') as f1:
+      profit_content = f1.read()
+      profit_content = profit_content.replace('<!-- 在这里插入表格 -->', profit_output)
+
+    with open('./html_templates/balance_template.html') as f2:
+      balance_content = f2.read()
+      balance_content = balance_content.replace('<!-- 在这里插入表格 -->', balance_output)
+
+    with open('./html_templates/flow_template.html') as f3:
+      flow_content = f3.read()
+      flow_content = flow_content.replace('<!-- 在这里插入表格 -->', flow_output)
+    # return content, im2
+    return profit_content, balance_content, flow_content
 
 def read_excel(file):
     workbook = load_workbook(file.name)
