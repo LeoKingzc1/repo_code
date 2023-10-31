@@ -25,25 +25,31 @@ def create_ui():
         
                 button1 = gr.Button("匹配")
                 with gr.Column():
+                  pdf_attrs_profit = gr.Dropdown(label = '利润表属性', allow_custom_value = False,interactive = True,multiselect = True)
                   with gr.Row(equal_height=True) :
                     # profit_options = gr.CheckboxGroup(label = '请选择需要列')
                     profit_dataframe = gr.HTML()
-        
+                    profit_dataframe.change(read_df, [profit_dataframe], [pdf_attrs_profit])
+
+                  pdf_attrs_balance = gr.Dropdown(label = '现金流量表属性', allow_custom_value = False,interactive = True,multiselect = True)
                   with gr.Row(equal_height=True) :
                     # balance_options = gr.CheckboxGroup(label = '请选择需要的列')
                     balance_dataframe = gr.HTML()
-        
+                    balance_dataframe.change(read_df, [balance_dataframe], [pdf_attrs_balance])
+
+                  pdf_attrs_flow = gr.Dropdown(label = '现金流量表属性', allow_custom_value = False,interactive = True,multiselect = True)
                   with gr.Row(equal_height=True) :
                     # flow_options = gr.CheckboxGroup(label = '请选择需要列')
                     flow_dataframe = gr.HTML()
+                    flow_dataframe.change(read_df, [flow_dataframe], [pdf_attrs_flow])
         
-                  numbers = gr.CheckboxGroup(label = '选择需要列的序号')
-                  numbers = gr.Textbox(label = '请选择需要列的序号', info="从1开始计数")
+                  # numbers = gr.CheckboxGroup(label = '选择需要列的序号')
+                  # numbers = gr.Textbox(label = '请选择需要列的序号', info="从1开始计数")
                   button2 = gr.Button("下载")
                   csv = gr.File(interactive=False, visible=False)
         
                 button1.click(mock_ocr, [file,p_s_profit, p_e_profit,p_s_balance, p_e_balance, p_s_flow, p_e_flow], [profit_dataframe,balance_dataframe,flow_dataframe])
-                button2.click(export_csv, [profit_dataframe, balance_dataframe, flow_dataframe,numbers], csv)
+                button2.click(export_csv, [pdf_attrs_profit, profit_dataframe, pdf_attrs_balance, balance_dataframe, pdf_attrs_flow, flow_dataframe], csv)
         with gr.Tab("Excel文件处理"):
                 file_csv = gr.File(label="请上传PDF文件", file_types=['xlsx','csv'])
                 with gr.Row(equal_height=True):
@@ -88,8 +94,8 @@ def create_ui():
                     flow_dataframe = gr.HTML()
                     flow_dataframe.change(read_df, [flow_dataframe], [attrs_flow])
         
-                  numbers = gr.CheckboxGroup(label = '选择需要列的序号')
-                  numbers = gr.Textbox(label = '请选择需要列的序号', info="从1开始计数")
+                  # numbers = gr.CheckboxGroup(label = '选择需要列的序号')
+                  # numbers = gr.Textbox(label = '请选择需要列的序号', info="从1开始计数")
                   button2 = gr.Button("下载")
                   csv = gr.File(interactive=False, visible=False)
                 button1.click(sep_df, [file_csv, sheet_profit, row_p, sheet_balance, row_b, sheet_flow, row_f],[profit_dataframe, balance_dataframe, flow_dataframe])
