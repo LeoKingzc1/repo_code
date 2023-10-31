@@ -58,30 +58,32 @@ def mock_ocr(pdf, p_s_profit, p_e_profit,p_s_balance, p_e_balance, p_s_flow, p_e
     # return content, im2
     return profit_content, balance_content, flow_content
 
-def export_csv(d1,d2,d3,numbers):
+def export_csv(a1,d1,a2,d2,a3,d3):
     # # get tables
     df1 = pd.read_html(d1,header=0)[0]
     df2 = pd.read_html(d2,header=0)[0]
     df3 = pd.read_html(d3,header=0)[0]
+    # df1 = d1
+    # df2 = d2
+    # df3 = d3
 
-    # 数字正则表达式
-    numbers = numbers.replace(' ','')
-    pattern = r'\d+'
 
-    numbers = re.findall(pattern, numbers)
-    num = []
-    for i in numbers:
-      num.append(int(i)-1)
+    # col1 = read_numbers(df1, num)
+    # col2 = read_numbers(df2, num)
+    # col3 = read_numbers(df3, num)
 
-    col1 = read_numbers(df1, num)
-    col2 = read_numbers(df2, num)
-    col3 = read_numbers(df3, num)
+    col1 = a1
+    col2 = a2
+    col3 = a3
 
     output_path = 'output.xlsx'
 
     # 创建一个 ExcelWriter 对象
     with pd.ExcelWriter(output_path) as writer:
         # 将每个 DataFrame 写入到不同的工作表中
+        # df1.style.to_excel(writer, columns=col1 ,sheet_name='利润表', engine='openpyxl', index = False)
+        # df2.style.to_excel(writer, columns=col2, sheet_name='资产负债表', engine='openpyxl', index = False)
+        # df3.style.to_excel(writer, columns=col3, sheet_name='现金流量表', engine='openpyxl', index = False)
         df1.style.apply(highlight_row, axis = 1).to_excel(writer, columns=col1 ,sheet_name='利润表', engine='openpyxl', index = False)
         df2.style.apply(highlight_row, axis = 1).to_excel(writer, columns=col2, sheet_name='资产负债表', engine='openpyxl', index = False)
         df3.style.apply(highlight_row, axis = 1).to_excel(writer, columns=col3, sheet_name='现金流量表', engine='openpyxl', index = False)
