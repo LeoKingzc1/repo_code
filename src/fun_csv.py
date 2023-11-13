@@ -21,7 +21,8 @@ def col_index(attr):
 def read_sheet(file_path, sheet_name, row):
     data = pd.read_excel(file_path, sheet_name, engine='openpyxl')
     # data = pd.read_csv(csv)
-    if row != 0:
+    if row != 1:
+      row = row - 2
       attr = list(data.iloc[row])
       attr = [i.replace(' ', '') for i in attr]
       data.columns = attr
